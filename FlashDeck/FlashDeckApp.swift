@@ -1,6 +1,6 @@
 //
-//  FlashDecktestingApp.swift
-//  FlashDecktesting
+//  FlashDeckApp.swift
+//  FlashDeck
 //
 //  Created by Anthony Sturrus on 5/1/25.
 //

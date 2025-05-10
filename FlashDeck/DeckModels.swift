@@ -1,50 +1,58 @@
 import SwiftUI
 
+// Model representing a single flashcard
 struct Card: Identifiable, Codable {
-    var id = UUID()
-    var question: String
-    var answer: String
+    var id = UUID()  // Unique identifier for each card
+    var question: String  // The front side of the card (the question)
+    var answer: String    // The back side of the card (the answer)
 }
 
+// Model representing a deck that contains multiple cards
 struct Deck: Identifiable, Codable {
-    var id = UUID()
-    var title: String
-    var cards: [Card]
+    var id = UUID()  // Unique identifier for each deck
+    var title: String  // Title of the deck (e.g., "Math", "Geography")
+    var cards: [Card]  // Array of cards belonging to this deck
 }
 
+// Observable class that manages all decks and handles persistence
 class DeckStore: ObservableObject {
-    @Published var decks: [Deck] = [] {
+    @Published var decks: [Deck] = [] {  // Publishes changes to the decks array
         didSet {
-            saveDecks() // Automatically save whenever decks change
+            saveDecks()  // Automatically save decks when they are modified
         }
     }
 
-    private let decksKey = "decks"
+    private let decksKey = "decks"  // Key used to store/retrieve decks from UserDefaults
 
+    // Called when DeckStore is initialized
     init() {
-        loadDecks() // Load decks when the app starts
-        if decks.isEmpty {  // If no decks are loaded, add predefined ones
+        loadDecks()  // Load saved decks from UserDefaults
+
+        // If no decks were loaded (i.e., first launch), add some predefined sample decks
+        if decks.isEmpty {
             addPredefinedDecks()
         }
     }
 
+    // Saves decks to UserDefaults using JSON encoding
     func saveDecks() {
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(decks) {
-            UserDefaults.standard.set(encoded, forKey: decksKey)
+            UserDefaults.standard.set(encoded, forKey: decksKey)  // Store encoded data under "decks" key
         }
     }
 
+    // Loads decks from UserDefaults using JSON decoding
     func loadDecks() {
         if let savedDecks = UserDefaults.standard.data(forKey: decksKey) {
             let decoder = JSONDecoder()
             if let decodedDecks = try? decoder.decode([Deck].self, from: savedDecks) {
-                decks = decodedDecks
+                decks = decodedDecks  // Assign loaded decks to the published variable
             }
         }
     }
 
-    // Add predefined decks if no decks exist
+    // Adds some default decks and cards for demonstration or first-time users
     private func addPredefinedDecks() {
         let mathDeck = Deck(title: "Math", cards: [
             Card(question: "2 + 2", answer: "4"),
@@ -55,6 +63,7 @@ class DeckStore: ObservableObject {
             Card(question: "Capital of France?", answer: "Paris")
         ])
         
+        // Append predefined decks to the store
         decks.append(contentsOf: [mathDeck, geographyDeck])
     }
 }
